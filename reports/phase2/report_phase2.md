@@ -103,3 +103,29 @@ We define Event $C$ as having an entorhinal volume below the sample median ($154
 ### 4. Concluding Remarks
 The analysis demonstrates that both hypertension and neurostructural atrophy update our prior knowledge regarding cognitive status. However, the magnitude of the probability update provided by the structural MRI marker is more pronounced. These empirical findings provide a strong quantitative basis for multivariate modeling in subsequent phases.
 
+  ---
+
+## Task 4: Evaluating the Concept of Independence
+
+In this task, we assess the independence of two clinical events: Event $A$ (Cognitive Impairment, defined as `NACCUDSD_uds` $\ge 3$) and Event $B$ (Presence of Hypertension, defined as `HYPERTEN` $= 1$). 
+
+Two events $A$ and $B$ are statistically independent if and only if the joint probability of their occurrence equals the product of their marginal probabilities:
+$$P(A \cap B) = P(A) \times P(B)$$
+
+### 1. Empirical Calculation
+Based on the full cohort of $N = 1,237$ participants:
+
+* **Marginal Probability $P(A)$:** $0.3096$
+* **Marginal Probability $P(B)$:** $0.3589$
+* **Product of Marginals $P(A) \times P(B)$:** $0.3096 \times 0.3589 \approx 0.1111$
+* **Empirical Joint Probability $P(A \cap B)$:** $0.1196$
+
+### 2. Independence Evaluation
+To evaluate independence, we compute the absolute difference between the empirical joint probability and the product of marginals:
+$$\Delta = |P(A \cap B) - (P(A) \times P(B))|$$
+$$\Delta = |0.1196 - 0.1111| = 0.0085$$
+
+### 3. Statistical Interpretation
+The observed absolute difference of approximately $0.0085$ ($< 1\%$) suggests that the empirical distribution of these data is consistent with the assumption of statistical independence. In this specific cohort, the presence of hypertension does not show a strong empirical deviation from what would be expected under the independence assumption regarding cognitive impairment status.
+
+**Methodological Note:** While these events appear independent based on simple empirical probability, this analysis is restricted to the bivariate level. Potential conditional dependencies or multivariate interactions between vascular risk factors, neuroimaging biomarkers, and cognitive status will be more rigorously examined in the inferential modeling phases.
