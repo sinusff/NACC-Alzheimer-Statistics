@@ -307,3 +307,139 @@ $$P(A \mid C) = \frac{0.5875 \times 0.3096}{0.4996} \approx \frac{0.1819}{0.4996
 * **Probability Revision:** Observing structural neuroimaging evidence (low entorhinal volume) updates our prior belief of cognitive impairment from a baseline of **$30.96\%$** to a posterior risk of **$36.41\%$**.
 * **Clinical Utility:** The application of Bayes' theorem demonstrates quantitatively how multimodal data integration (`UDS + MRI`) refines clinical assessment. Structural neurobiology acts as a probabilistic updater, confirming that localized brain atrophy elevates the diagnostic probability of cognitive decline within a specialized memory clinic setting.
 
+---
+
+## Path C Special Requirements: C.1 - Conditional Probability of Cognitive Status by MRI Stratification
+
+In compliance with Path C requirements, we evaluate the conditional probability of clinical cognitive status (defined via `UDS`) stratified across neuroimaging subgroups defined by structural `MRI` biomarkers. 
+
+### 1. Operational Definitions
+* **Target Clinical Outcome ($A$):** Cognitive Impairment (`NACCUDSD_uds` $\ge 3$, combining Mild Cognitive Impairment and Alzheimer's Dementia).
+* **MRI Stratification Variable ($C$):** Left Entorhinal Cortical Volume (`LH_ENTORHINAL_GVOL`), split by the sample median ($1,545.00\text{ mm}^3$) into two distinct groups:
+  - *Group 1 (Low Volume / Atrophy):* $Volume < \text{Median}$
+  - *Group 2 (Normal/High Volume):* $Volume \ge \text{Median}$
+
+### 2. Empirical Conditional Probabilities (Exact Data)
+Based on the exact sample counts extracted from our multimodal cohort ($N = 1,237$):
+
+| MRI Subgrouping ($C$) | Total Participants ($n$) | Impaired Cases ($k$) | Conditional Probability $P(\text{Impaired} \mid \text{Group})$ |
+| :--- | :---: | :---: | :---: |
+| **Low Volume (Atrophy)** | $618$ | $225$ | **$0.3641$ ($36.41\%$)** |
+| **Normal / High Volume** | $619$ | $158$ | **$0.2553$ ($25.53\%$)** |
+
+### 3. Clinical and Statistical Interpretation
+* **Risk Elevation:** Conditioning on structural neuroimaging stratification reveals a substantial divergence in clinical risk. Participants exhibiting left entorhinal volumetric atrophy face a $36.41\%$ empirical probability of clinical cognitive impairment, compared to only $25.53\%$ among those with preserved volume.
+* **Multimodal Value:** This conditional analysis demonstrates that partitioning the patient cohort using an `MRI` biomarker successfully isolates subgroups with markedly different neurological outcomes, confirming the strong predictive utility required in Path C investigations.
+
+---
+
+## Path C Special Requirements: C.2 - Distribution of a UDS Cognitive Score and an MRI Variable
+
+In compliance with Path C specifications, we analyze the distributional properties of two core quantitative variables representing both modalities: a clinical cognitive performance score from the `UDS` dataset (`MOCATOTS`) and a morphometric neuroimaging variable from the `MRI` dataset (`LH_ENTORHINAL_GVOL`).
+
+### 1. Exact Distributional and Outlier Metrics
+Based on our matched cohort ($N = 1,237$), the empirical mean, variance, skewness, and outlier counts (identified via the standard $1.5 \times \text{IQR}$ rule) are summarized below:
+
+| Variable Description | Code | Mean ($\mu$) | Variance ($s^2$) | Std Dev ($s$) | Skewness | IQR | Outliers ($n$) | Min – Max |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **MoCA Total Score** | `MOCATOTS` | $24.4422$ | $20.1426$ | $4.4881$ | $-1.6826$ | $4.00$ | $80$ | $0.00 - 39.40$ |
+| **Left Entorhinal Volume** | `LH_ENTORHINAL_GVOL` | $1554.2757$ | $171002.0316$ | $413.5239$ | $0.5289$ | $490.00$ | $33$ | $0.00 - 4265.00$ |
+
+### 2. Distributional Shape, Center, and Spread
+* **`MOCATOTS` (UDS Cognitive Score):** 
+  - *Shape:* Displays a pronounced negative (left) skewness ($-1.6826$). This asymmetry is driven by a strong ceiling effect among healthy older adults clustering near scores of $26-30$, contrasted with a long left tail representing severe cognitive impairment.
+  - *Mean & Variance:* An empirical mean of $24.4422$ points and variance of $20.1426\text{ pts}^2$ ($s = 4.4881$) reflect the clinical heterogeneity spanning from unimpaired cognition to advanced dementia.
+* **`LH_ENTORHINAL_GVOL` (MRI Neuroimaging Volume):** 
+  - *Shape:* Exhibits a mild positive (right) skewness ($0.5289$), approximating a nearly symmetric bell-shaped distribution centered around $1,554.28\text{ mm}^3$.
+  - *Mean & Variance:* A substantial variance of $171,002.0316\text{ mm}^6$ ($s = 413.5239\text{ mm}^3$) reflects natural inter-individual differences in head size alongside progressive tissue atrophy.
+
+### 3. Outlier Identification and Clinical Interpretation
+* **Outliers in `MOCATOTS` ($n = 80$):** Using the $1.5 \times \text{IQR}$ criterion, $80$ outliers are identified. Most lie at the lower extreme (dementia patients scoring near $0-16$), while a few represent upper-bound recording anomalies above the theoretical limit of $30$ (up to $39.40$) flagged during Phase 1 quality auditing.
+* **Outliers in `LH_ENTORHINAL_GVOL` ($n = 33$):** $33$ observations fall outside the normal IQR fences. These encompass physically impossible near-zero measurements ($0.00\text{ mm}^3$) indicative of automated `FreeSurfer` segmentation errors, as well as extreme high-end volumes (up to $4,265.00\text{ mm}^3$). These outliers will be systematically addressed via sensitivity checks in inferential phases.
+
+---
+
+## Path C Special Requirements: C.3 - Joint Probability Across Two Modalities
+
+In accordance with Path C requirements, we construct a multimodal probabilistic analysis linking a clinical diagnostic event from `UDS` with an engineered structural event from `MRI`, computing their marginal, joint, and conditional probabilities.
+
+### 1. Event Definitions
+* **UDS Clinical Event ($U$):** Clinical Cognitive Impairment (`NACCUDSD_uds` $\ge 3$, encompassing `MCI` and Alzheimer's Dementia).
+* **Constructed MRI Event ($M$):** **Bilateral Entorhinal Cortical Thinning**, defined as having an average cortical thickness simultaneously below the cohort median in **both** hemispheres:
+  $$M = \{ \omega \in S \mid \text{LH\_ENTORHINAL\_AVGTH}(\omega) < 3.0210\text{ mm} \;\land\; \text{RH\_ENTORHINAL\_AVGTH}(\omega) < 3.0970\text{ mm} \}$$
+
+### 2. Multimodal Contingency Table
+Cross-tabulating both events across the matched cohort ($N = 1,237$) yields the following joint frequency distribution:
+
+| UDS / MRI Events | Bilateral Thinning ($M$) | No Bilateral Thinning ($\overline{M}$) | Marginal Total ($U$ / $\overline{U}$) |
+| :--- | :---: | :---: | :---: |
+| **Cognitive Impairment ($U$)** | $209$ | $174$ | **$383$** |
+| **Unimpaired / Non-MCI ($\overline{U}$)** | $247$ | $607$ | **$854$** |
+| **Marginal Total ($M$ / $\overline{M}$)** | **$456$** | **$781$** | **$1,237$** |
+
+### 3. Marginal, Joint, and Conditional Probabilities
+
+* **Marginal Probabilities:**
+  - $P(U) = \frac{383}{1,237} \approx 0.3096 \quad (30.96\%)$
+  - $P(M) = \frac{456}{1,237} \approx 0.3686 \quad (36.86\%)$
+
+* **Joint Probability:**
+  The probability that a randomly selected patient exhibits **both** clinical cognitive impairment and bilateral entorhinal cortical thinning simultaneously:
+  $$P(U \cap M) = \frac{209}{1,237} \approx 0.1690 \quad (16.90\%)$$
+  *(Note: Under independence, $P(U) \times P(M) \approx 0.3096 \times 0.3686 = 0.1141$. The substantial excess of $+0.0549$ strongly indicates statistical dependence between the two modalities).*
+
+* **Conditional Probabilities (Bidirectional):**
+  - **Clinical Risk Given MRI Atrophy:**
+    $$P(U \mid M) = \frac{209}{456} \approx 0.4583 \quad (45.83\%)$$
+    $$P(U \mid \overline{M}) = \frac{174}{781} \approx 0.2228 \quad (22.28\%)$$
+  - **MRI Atrophy Given Clinical Diagnosis:**
+    $$P(M \mid U) = \frac{209}{383} \approx 0.5457 \quad (54.57\%)$$
+    $$P(M \mid \overline{U}) = \frac{247}{854} \approx 0.2892 \quad (28.92\%)$$
+
+### 4. Multimodal Interpretation
+* **Doubled Relative Risk:** The empirical risk of clinical cognitive impairment more than doubles—rising from $22.28\%$ to $45.83\%$—when a participant exhibits bilateral cortical thinning in the entorhinal cortex.
+* **Diagnostic Sensitivity Pattern:** Over half ($54.57\%$) of clinically impaired patients demonstrate bilateral cortical thinning, compared to only $28.92\%$ of unimpaired controls. This pronounced asymmetry underscores the structural-functional linkage across the `UDS` and `MRI` modalities.
+
+---
+
+## Path C Special Requirements: C.4 - Covariance Between Cognition and Neuroimaging
+
+In compliance with Path C requirement C.4, we analyze the bivariate joint relationship between a quantitative clinical cognitive score from `UDS` (**MoCA Total Score**, `MOCATOTS`, $Y$) and a volumetric morphometry feature from `MRI` (**Left Entorhinal Gray Matter Volume**, `LH_ENTORHINAL_GVOL`, $X$, measured in $\text{mm}^3$).
+
+### 1. Empirical Covariance and Correlation Metrics
+Based on $N = 1,233$ complete multimodal pairs after data sanitization:
+* **Sample Covariance ($Cov(\text{Volume}, \text{MoCA})$):** $+370.4548$ ($\text{mm}^3 \cdot \text{points}$)
+* **Pearson Correlation Coefficient ($r$):** $+0.1994$
+* **Spearman Rank Correlation ($\rho$):** $+0.2335$
+
+### 2. Visual Analysis via Scatter Plot (`Figure C.4`)
+The scatter plot (`figures/fig_c4_vol_vs_moca_cov.png`) visualizes left entorhinal volume against MoCA performance across diagnostic groups:
+* **Direction of Relationship:** The positive covariance ($+370.4548$) and upward-sloping dashed linear trendline confirm a **positive linear direction**—larger left entorhinal volumes are generally associated with higher cognitive scores.
+* **Effect of Outliers & Rank vs. Linear Correlation:** Notably, the rank-based Spearman correlation ($\rho = 0.2335$) is meaningfully higher than the linear Pearson correlation ($r = 0.1994$). Visual inspection of Figure C.4 explains this discrepancy: extreme volumetric outliers—such as the `Normal` observation at $0\text{ mm}^3$ (segmentation failure) and the `MCI` observation at $4,265\text{ mm}^3$ with a MoCA score of $19$—pull the linear regression line and attenuate Pearson's $r$.
+* **Comparison with Cortical Thickness:** Volumetric measures exhibit a weaker linear correlation ($r = 0.1994$) than cortical thickness (`LH_ENTORHINAL_AVGTH`, $r = 0.2825$ in Task 8), likely because raw gray matter volume is confounded by inter-individual differences in total intracranial head size.
+
+### 3. Explicit Non-Causality Caveat
+* **No Causal Inference:** In strict accordance with study design principles and Path C guidelines, **no causal claim is made from this bivariate covariance or scatter plot**. 
+* **Role of Confounding:** Because the `NACC` cohort is strictly observational, the observed positive association reflects shared variance driven by underlying neurodegenerative processes and unadjusted confounders (such as chronological age, intracranial head size, educational attainment, and vascular burden). Causal mechanisms cannot be inferred from unadjusted observational correlations.
+
+---
+
+## Path C Special Requirements: C.5 - Control of Repeated Visits and Independence Verification
+
+In longitudinal clinical repositories such as `NACC`, individual participants frequently undergo multiple annual evaluations over time. Including repeated observations from the same subject in standard probabilistic calculations violates the fundamental assumption of **independent observations** ($i.i.d.$) and introduces pseudoreplication bias. In strict compliance with Path C requirement C.5, we verify participant-level independence and document the index visit selection rule governing all Phase 2 analyses.
+
+### 1. Quantitative Independence Audit
+Executing a programmatic uniqueness audit across both data modalities (`src/phase2_pathc_j5.py`) confirms exact 1-to-1 subject-level alignment:
+
+| Dataset Component | Total Rows | Unique Participants (`NACCID`) | Visits/Scans per ID (Min / Max) | Duplicate Records |
+| :--- | :---: | :---: | :---: | :---: |
+| **Clinical (`udslong_imputed.csv`)** | $1,237$ | $1,237$ | $1 / 1$ | $0$ |
+| **Neuroimaging (`mriscanclean.csv`)** | $1,237$ | $1,237$ | $1 / 1$ | $0$ |
+| **Merged Analysis Cohort** | $1,237$ | $1,237$ | $1 / 1$ | $0$ |
+
+* **Schema Metadata Verification:** An automated keyword scan of all columns returned zero visit-sequence or date fields in the `MRI` file (`[]`) and flagged only `NACCVASD` (vasodilator medication indicator) and `REMDATES` (Functional Activities Questionnaire item assessing difficulty remembering dates) in the `UDS` file. Inspection confirms that neither field represents a longitudinal visit timestamp or visit counter, verifying that the curated dataset contains no repeated longitudinal records.
+
+### 2. Index Visit Selection Rule Documentation
+* **Selection Rule:** Each unique participant (`NACCID`) is represented by **one single temporally matched index visit**, pairing the standardized clinical `UDS` assessment with the corresponding structural `MRI` scan acquisition.
+* **Methodological Guarantee:** Because every participant contributes exactly one independent record ($\text{Min} = 1$, $\text{Max} = 1$, zero duplicates), all empirical probabilities, contingency tables, conditional and Bayesian updates, distributional moments, and bivariate covariances calculated across Phase 2 strictly satisfy the **independence of observations assumption** ($N = 1,237$ independent subjects).
+
